@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gjw.mapper.FaceDeviceLogMapper">
+
+
+    <insert id="insert">
+        insert into face_device_log(student_id,device_id,status,message,create_time,app_id,count)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.studentId},#{deviceId},0,"任务已发送到人脸机",sysdate(),#{appId},0)
+        </foreach>
+    </insert>
+
+    <update id="updateStatus">
+        update face_device_log set count=count+1,status =#{status},create_time =sys_date() where student_id in
+         <foreach collection="studentIds" item="studentId" open="(" separator="," close=")">
+            #{studentId}
+         </foreach>
+         and device_id =#{deviceId}
+    </update>
+
+
+    <update id="updateSendTime">
+        <![CDATA[
+        update face_device_log set send_time = sysdate() where d.status =-1 and count< #{count} and (send_time is null or create_time > send_time)
+        ]]>
+    </update>
+
+
+    <select id="getFailFace" resultType="com.gjw.bean.dto.FaceManagerVo">
+        <![CDATA[
+            select f.*,d.count from face_device_log  d
+            inner join face_manager f on d.student_id = f.student_id
+            where d.status =-1 and count<#{count} and (send_time is null or create_time > send_time)
+        ]]>
+
+    </select>
+
+</mapper>
+

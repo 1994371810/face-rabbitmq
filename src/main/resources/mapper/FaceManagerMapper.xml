@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gjw.mapper.FaceManagerMapper">
+
+
+    <insert id="batchInsert">
+        insert into face_manager(id,student_id,app_id,face_url,status) values
+        <foreach collection="list" item="item" separator=",">
+            (null,#{item.studentId},#{item.appId},#{item.faceUrl},0)
+        </foreach>
+    </insert>
+
+
+    <update id="updateStatus">
+        update face_manager set status = #{status} where student_id in
+        <foreach collection="list" item="item" open="("  separator="," close=")">
+            #{item.studentId}
+        </foreach>
+    </update>
+
+
+    <select id="getFaceManagerByAppId" resultType="com.gjw.bean.FaceManager">
+        select * from face_manager where app_id = #{appId} and status = #{status}
+    </select>
+
+    <select id="getByStudentId" resultType="com.gjw.bean.FaceManager">
+        select * from face_manager where student_id = #{id}
+    </select>
+
+</mapper>
+
